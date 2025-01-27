@@ -16,9 +16,15 @@ import {
 } from "@mui/material";
 import {useAuth} from "../../hooks/AuthProvider/useAuth.jsx";
 import axios from "axios";
+import {useParams} from "react-router-dom";
 
 
-function Formbuilder() {
+function EditForm() {
+    const {id} = useParams();
+    const {user} = useAuth();
+    console.log(user);
+
+
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
@@ -26,87 +32,29 @@ function Formbuilder() {
             },
         })
     );
-    const [draggableMarkup, setDraggableMarkup] = useState({
-        0: {
-            id: 101,
-            type: 'text',
-            formprops: {
-                name: 'text',
-                label: 'text',
-                type: 'text',
-                placeholder: 'Enter your text',
-                required: false,
-                validation: null,
-            },
-            isDropped: false
-        },
-        1: {
-            id: 102,
-            type: 'dropdown',
-            formprops: {
-                name: 'dropdown',
-                type: 'select',
-                options: ['Option 1', 'Option 2'],
-                placeholder: "Select an option",
-                required: false,
-                label: "Dropdown",
-                className: "",
-                validation: null
-            },
-            isDropped: false
-        },
-        2: {
-            id: 103,
-            type: 'checkbox',
-            formprops: {
-                name: 'checkbox',
-                type: 'checkbox',
-                label: 'Checkbox',
-                required: false,
-            },
+    const [draggableMarkup, setDraggableMarkup] = useState({});
+    const [responseData, setResponseData] = useState({});
 
-            isDropped: false,
-        },
-        3: {
-            id: 104,
-            type: 'radio',
-            formprops: {
-                name: 'radio',
-                type: 'radio',
-                label: 'Radio',
-                options: ['Option 1', 'Option 2'],
-                required: false,
-            },
+    useEffect(() => {
+        const fetchData = async () => {
+            const response = await axios.get(`http://localhost:3000/api/forms/${id}`, {
+                headers: {
+                    authorization: `Bearer ${user.token}`,
+                },
+            });
 
-            isDropped: false,
-        },
-        4: {
-            id: 105,
-            type: 'date',
-            formprops: {
-                name: 'date',
-                type: 'date',
-                label: 'Date Picker',
-                required: false,
-            },
+            // Process the form data before setting state
+            setResponseData(response.data)
+            setDraggableMarkup(response.data.form_data);
+            setFormName(response.data.form_name);
+        };
 
-            isDropped: false,
-        },
-        5: {
-            id: 106,
-            type: 'file',
-            formprops: {
-                name: 'file',
-                type: 'file',
-                label: 'File Upload',
-                required: false,
-                accept: '.jpg,.png,.pdf', // Example of accepted file types
-            },
+        fetchData();
+    }, []);
 
-            isDropped: false,
-        },
-    });
-
+    useEffect(()=>{
+        console.log(draggableMarkup);
+    }, [draggableMarkup]);
     const renderContent = (item) => {
         switch (item.type) {
             case 'text':
@@ -197,8 +145,8 @@ function Formbuilder() {
         }, {});
 
         try {
-            const response = await axios.post(
-                `${import.meta.env.VITE_API_URL}/api/forms/save`,
+            const response = await axios.put(
+                `${import.meta.env.VITE_API_URL}/api/forms/update/`+id,
                 {
                     form_name: formName,
                     form_data: formDataToSave
@@ -385,34 +333,10 @@ function Formbuilder() {
 
         handleClose();
     };
-    const {user} = useAuth();
     const [formName, setFormName] = useState('');
     const handleformnamechange = (e)=>{
         setFormName(e.target.value);
     }
-    // const handlesaveform = async () =>{
-    //     // TODO: do api call
-    //     if(!formName){
-    //         alert("Form name required");
-    //         return;
-    //     }
-    //     console.log(draggableMarkup);
-    //     console.log(user);
-    //
-    //     await axios.post(import.meta.env.VITE_API_URL+"/api/forms/save", {form_name: formName, form_data: draggableMarkup},{
-    //         headers: {
-    //             'authorization': `Bearer ${user.token}`
-    //         }}).then((result)=>{
-    //             if(result.status === 201){
-    //                 alert("Form saved successfully");
-    //                 console.log(result);
-    //                 window.location.reload();
-    //             }
-    //     }).catch((err)=>{
-    //         alert(err.message);
-    //     });
-    //
-    // }
     return (
         <>
             {/*<button onClick={() => handleClickOpen()}>edit</button>*/}
@@ -616,5 +540,4 @@ function Formbuilder() {
     )
 
 }
-
-export default Formbuilder;
+export default EditForm;

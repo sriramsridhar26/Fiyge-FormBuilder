@@ -6,6 +6,8 @@ import {BrowserRouter, Navigate, Route, Router, Routes} from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute.jsx";
 import AuthProvider from "./hooks/AuthProvider/useAuth.jsx";
 import Signup from "./pages/Signup/Signup.jsx";
+import Dashboard from "./pages/Dashboard/Dashboard.jsx";
+import EditForm from "./pages/EditForm/EditForm.jsx";
 
 export default function App() {
     return (
@@ -22,6 +24,22 @@ export default function App() {
                         element={
                             <ProtectedRoute>
                                 <Formbuilder />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/dashboard"
+                        element={
+                            <ProtectedRoute>
+                                <Dashboard />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/editform/:id"
+                        element={
+                            <ProtectedRoute>
+                                <EditForm />
                             </ProtectedRoute>
                         }
                     />

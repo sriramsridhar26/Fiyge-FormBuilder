@@ -13,18 +13,6 @@ const saveForm = async (req, res) => {
     }
 };
 
-// Fetch Form
-const fetchForm = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const userEmail = req.user.email;
-        const form = await Forms.findOne({ where: { id, user_email: userEmail } });
-        if (!form) return res.status(404).json({ message: 'Form not found' });
-        res.json(form);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
 
 // Update Form
 const updateForm = async (req, res) => {
@@ -50,11 +38,40 @@ const updateForm = async (req, res) => {
 const listForms = async (req, res) => {
     try {
         const userEmail = req.user.email;
-        const forms = await Forms.findAll({ where: { user_email: userEmail } });
-        res.json(forms);
+
+
+        // Fetch only the form names for the authenticated user
+        const forms = await Forms.findAll({
+            where: { user_email: userEmail },
+            attributes: ['id', 'form_name'], // Fetch both form_name and id
+        });
+
+        // Send an array of form objects containing form_name and id
+        const formData = forms.map(form => ({
+            id: form.id,
+            form_name: form.form_name,
+        }));
+
+        res.json(formData); // Send the list of form data (id, form_name)
+
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
-module.exports = { saveForm, fetchForm, updateForm, listForms };
+// Fetch Form
+const fetchForm = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userEmail = req.user.email;
+        const form = await Forms.findOne({ where: { id, user_email: userEmail } });
+        console.log(form);
+        if (!form) return res.status(404).json({ message: 'Form not found' });
+
+        res.json(form);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+module.exports = { saveForm, updateForm, listForms, fetchForm};
