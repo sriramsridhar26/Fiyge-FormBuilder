@@ -1,14 +1,153 @@
 import React from "react";
 
 import Draggable from "../../hooks/Draggable/Draggable.jsx";
-import {DndContext} from "@dnd-kit/core";
+import {DndContext, PointerSensor, useSensor, useSensors} from "@dnd-kit/core";
 import Droppable from "../../hooks/Droppable/Droppable.jsx";
 import {useEffect, useRef, useState} from "react";
-import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField} from "@mui/material";
-
+import {
+    Button, Checkbox,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    FormControlLabel,
+    TextField
+} from "@mui/material";
 
 
 function Formbuilder() {
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 5, // Minimum distance in pixels before dragging starts
+            },
+        })
+    );
+    const initialdraggableMarkup = {
+        0: {
+            id: 101,
+            type: 'text',
+            formprops: {
+                name: 'text',
+                label: 'text',
+                type: 'text',
+                placeholder: 'Enter your text',
+                required: false,
+                validation: null,
+            },
+            content: (props) => <input {...props.formprops}></input>,
+            isDropped: false
+        },
+        1: {
+            id: 102,
+            type: 'dropdown',
+            formprops: {
+                name: 'dropdown',
+                type: 'select',
+                options: ['Option 1', 'Option 2'],
+                placeholder: "Select an option",
+                required: false,
+                label: "Dropdown",
+                className: "",
+                validation: null
+            },
+            content: (props) => (
+                <select {...props.formprops}>
+                    {props.formprops.options.map((option, key) => (
+                        <option value={option} key={key}>
+                            {option}
+                        </option>
+                    ))}
+                </select>
+            ),
+            isDropped: false
+        },
+        2: {
+            id: 103,
+            type: 'checkbox',
+            formprops: {
+                name: 'checkbox',
+                type: 'checkbox',
+                label: 'Checkbox',
+                required: false,
+            },
+            content: (props) => (
+                <div>
+                    <label>
+                        <input {...props.formprops} />
+                        {props.formprops.label}
+                    </label>
+                </div>
+            ),
+            isDropped: false,
+        },
+        3: {
+            id: 104,
+            type: 'radio',
+            formprops: {
+                name: 'radio',
+                type: 'radio',
+                label: 'Radio',
+                options: ['Option 1', 'Option 2'],
+                required: false,
+            },
+            content: (props) => (
+                <div>
+                    <label>{props.formprops.label}</label>
+                    {props.formprops.options.map((option, key) => (
+                        <div key={key}>
+                            <label>
+                                <input
+                                    type="radio"
+                                    name={props.formprops.name}
+                                    value={option}
+                                    required={props.formprops.required}
+                                />
+                                {option}
+                            </label>
+                        </div>
+                    ))}
+                </div>
+            ),
+            isDropped: false,
+        },
+        4: {
+            id: 105,
+            type: 'date',
+            formprops: {
+                name: 'date',
+                type: 'date',
+                label: 'Date Picker',
+                required: false,
+            },
+            content: (props) => (
+                <div>
+                    <label>{props.formprops.label}</label>
+                    <input {...props.formprops} />
+                </div>
+            ),
+            isDropped: false,
+        },
+        5: {
+            id: 106,
+            type: 'file',
+            formprops: {
+                name: 'file',
+                type: 'file',
+                label: 'File Upload',
+                required: false,
+                accept: '.jpg,.png,.pdf', // Example of accepted file types
+            },
+            content: (props) => (
+                <div>
+                    <label>{props.formprops.label}</label>
+                    <input {...props.formprops} />
+                </div>
+            ),
+            isDropped: false,
+        },
+    };
     const [draggableMarkup, setDraggableMarkup] = useState({
         0: {
             id: 101,
@@ -30,7 +169,7 @@ function Formbuilder() {
             formprops: {
                 name: 'dropdown',
                 type: 'select',
-                options: ['lemon', 'tea'],
+                options: ['Option 1', 'Option 2'],
                 placeholder: "Select an option",
                 required: false,
                 label: "Dropdown",
@@ -48,7 +187,98 @@ function Formbuilder() {
             ),
             isDropped: false
         },
+        2: {
+            id: 103,
+            type: 'checkbox',
+            formprops: {
+                name: 'checkbox',
+                type: 'checkbox',
+                label: 'Checkbox',
+                required: false,
+            },
+            content: (props) => (
+                <div>
+                    <label>
+                        <input {...props.formprops} />
+                        {props.formprops.label}
+                    </label>
+                </div>
+            ),
+            isDropped: false,
+        },
+        3: {
+            id: 104,
+            type: 'radio',
+            formprops: {
+                name: 'radio',
+                type: 'radio',
+                label: 'Radio',
+                options: ['Option 1', 'Option 2'],
+                required: false,
+            },
+            content: (props) => (
+                <div>
+                    <label>{props.formprops.label}</label>
+                    {props.formprops.options.map((option, key) => (
+                        <div key={key}>
+                            <label>
+                                <input
+                                    type="radio"
+                                    name={props.formprops.name}
+                                    value={option}
+                                    required={props.formprops.required}
+                                />
+                                {option}
+                            </label>
+                        </div>
+                    ))}
+                </div>
+            ),
+            isDropped: false,
+        },
+        4: {
+            id: 105,
+            type: 'date',
+            formprops: {
+                name: 'date',
+                type: 'date',
+                label: 'Date Picker',
+                required: false,
+            },
+            content: (props) => (
+                <div>
+                    <label>{props.formprops.label}</label>
+                    <input {...props.formprops} />
+                </div>
+            ),
+            isDropped: false,
+        },
+        5: {
+            id: 106,
+            type: 'file',
+            formprops: {
+                name: 'file',
+                type: 'file',
+                label: 'File Upload',
+                required: false,
+                accept: '.jpg,.png,.pdf', // Example of accepted file types
+            },
+            content: (props) => (
+                <div>
+                    <label>{props.formprops.label}</label>
+                    <input {...props.formprops} />
+                </div>
+            ),
+            isDropped: false,
+        },
     });
+    const fieldTypes = [
+        {value: 'text', label: 'Text Field'},
+        {value: 'number', label: 'Number Field'},
+        {value: 'range', label: 'Range Field'},
+        {value: 'search', label: 'Search Field'},
+        {value: 'email', label: 'Email Field'},
+    ];
 
 
     function handleDragEnd(event) {
@@ -62,12 +292,19 @@ function Formbuilder() {
                 const draggedKey = Object.keys(prev).find(
                     key => prev[key].id === active.id
                 );
-                let newKey = Object.keys(draggableMarkup).length;
-                console.log(newKey);
+                // let newKey = Object.keys(draggableMarkup).length;
+                // console.log(newKey);
 
                 if (draggedKey && !newMarkup[draggedKey].isDropped) {
-                    newMarkup[newKey] = Object.assign({}, newMarkup[draggedKey]);
-                    newMarkup[newKey].id += 2;
+                    const newKey = Math.max(...Object.keys(prev).map(Number)) + 1;
+
+                    // Create a deep copy of the dragged element
+                    newMarkup[newKey] = {
+                        ...JSON.parse(JSON.stringify(newMarkup[draggedKey])),
+                        id: Math.max(...Object.values(prev).map(item => item.id)) + 1,
+                        content: newMarkup[draggedKey].content // Preserve the content function
+                    };
+                    newMarkup[newKey].id += 6;
                     newMarkup[draggedKey].isDropped = true;
                     // TODO: save to a variable to be stored in backend
                     // console.log(draggedKey);
@@ -107,26 +344,111 @@ function Formbuilder() {
         }
     }
 
-    function editFormProps(id) {
+    const enabledTypes = ['text', 'search', 'range', 'email', 'number'];
+    // Dialog box state
+    const [open, setOpen] = useState(false);
+    const [openFormId, setOpenFormId] = useState(null);
+    const formInitialstate = {
+        name: '',
+        label: '',
+        type: '',
+        placeholder: '',
+        options: '',
+        required: false,
+    };
+    const [formValues, setFormValues] = useState(formInitialstate);
+    const [enableTextType, setEnableTextType] = useState(false);
+
+    function EditFormProps(id) {
+
+        setOpenFormId(id);
+
+        const record = Object.values(draggableMarkup).find(item => item.id === id);
+        if (record) {
+            setFormValues({
+                name: record.formprops.name,
+                label: record.formprops.label,
+                type: record.type,
+                placeholder: record.formprops.placeholder || '',
+                options: record.formprops.options ? record.formprops.options.join(', ') : '',
+                required: record.formprops.required,
+            });
+            console.log(formValues);
+            setEnableTextType(enabledTypes.includes(record.type));
+        }
+        setOpen(true);
+
 
     }
 
-
-    // Dialog box stuff
-    const [open, setOpen] = React.useState(false);
-
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
-
     const handleClose = () => {
         setOpen(false);
+        setOpenFormId(null);
     };
 
+    const handleFormChange = (e) => {
+        const {name, value} = e.target;
+        setFormValues(prev => ({...prev, [name]: value}));
+    };
+
+    const handleFormSubmit = () => {
+        setDraggableMarkup(prev => {
+            console.log(prev);
+            const updatedMarkup = {...prev};
+            const recordKey = Object.keys(updatedMarkup).find(
+                key => updatedMarkup[key].id === openFormId
+            );
+
+            if (recordKey) {
+                const updatedRecord = updatedMarkup[recordKey];
+                updatedRecord.formprops.name = formValues.name;
+                updatedRecord.formprops.label = formValues.label;
+                if (updatedRecord.formprops.type.localeCompare(formValues.type)) {
+                    updatedRecord.formprops.type = formValues.type;
+                }
+                updatedRecord.formprops.placeholder = formValues.placeholder;
+                updatedRecord.formprops.required = formValues.required;
+
+                // Update options if type is dropdown
+                if (formValues.type === 'dropdown') {
+                    updatedRecord.formprops.options = formValues.options
+                        .split(',')
+                        .map(opt => opt.trim());
+                }
+
+                // Update content for rerendering
+                // updatedRecord.content =
+                //     formValues.type === 'dropdown'
+                //         ? (props) => (
+                //             <select {...props.formprops}>
+                //                 {updatedRecord.formprops.options.map((option, key) => (
+                //                     <option value={option} key={key}>
+                //                         {option}
+                //                     </option>
+                //                 ))}
+                //             </select>
+                //         )
+                //         : (props) => <input {...props.formprops}></input>;
+
+                // updatedMarkup[recordKey] = updatedRecord;
+            }
+            setFormValues(formInitialstate);
+
+            return updatedMarkup;
+        });
+
+        handleClose();
+    };
+
+    const handlesaveform = () =>{
+        // TODO: do api call
+        console.log(draggableMarkup);
+        window.location.reload();
+    }
     return (
         <>
-            <button onClick={() => handleClickOpen()}>edit</button>
-            <DndContext onDragEnd={handleDragEnd}>
+            {/*<button onClick={() => handleClickOpen()}>edit</button>*/}
+            <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
                 <div style={{display: 'flex', gap: '10px'}}>
                     <div>
                         {Object.values(draggableMarkup)
@@ -154,9 +476,10 @@ function Formbuilder() {
                                         <div className="flex-none">
                                             <button onClick={(e) => {
                                                 e.stopPropagation();
-                                                handleClickOpen();
+                                                EditFormProps(item.id);
                                             }}
-                                                    data-drag-handle={false} >edit</button>
+                                            >edit
+                                            </button>
                                         </div>
 
                                     </div>
@@ -165,55 +488,166 @@ function Formbuilder() {
                     </Droppable>
                 </div>
             </DndContext>
-            <Dialog
-                open={open}
-                onClose={handleClose}
-                PaperProps={{
-                    component: 'form',
-                    onSubmit: (event) => {
-                        event.preventDefault();
-                        const formData = new FormData(event.currentTarget);
-                        const formJson = Object.fromEntries(formData.entries());
-                        const email = formJson.email;
-                        console.log(email);
-                        handleClose();
-                    },
-                }}
-            >
-                <DialogTitle>Subscribe</DialogTitle>
+            <Button variant="contained" onClick={handlesaveform}>Save Form</Button>
+            <Dialog open={open} onClose={handleClose}>
+                <DialogTitle>Edit Field Properties</DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
-                        To subscribe to this website, please enter your email address here. We
-                        will send updates occasionally.
-                    </DialogContentText>
+                    <DialogContentText>Edit field properties below:</DialogContentText>
                     <TextField
                         autoFocus
-                        required
                         margin="dense"
-                        id="name"
-                        name="email"
-                        label="Email Address"
-                        type="email"
+                        name="name"
+                        label="Name"
+                        value={formValues.name}
+                        onChange={handleFormChange}
                         fullWidth
                         variant="standard"
+                    />
+                    <TextField
+                        margin="dense"
+                        name="label"
+                        label="Label"
+                        value={formValues.label}
+                        onChange={handleFormChange}
+                        fullWidth
+                        variant="standard"
+                    />
+                    <TextField
+                        margin="dense"
+                        name="placeholder"
+                        label="Placeholder"
+                        value={formValues.placeholder}
+                        onChange={handleFormChange}
+                        fullWidth
+                        variant="standard"
+                    />
+
+                    {enableTextType && <TextField
+                        margin="dense"
+                        name="type"
+                        label="Field Type"
+                        select
+                        SelectProps={{
+                            native: true,
+                        }}
+                        value={formValues.type}
+                        onChange={handleFormChange}
+                        fullWidth
+                        variant="standard"
+                        disabled={!enabledTypes.includes(formValues.type)} // Disable if not in enabledTypes
+                    >
+                        {fieldTypes.map((field) => (
+                            <option key={field.value} value={field.value}>
+                                {field.label}
+                            </option>
+                        ))}
+                    </TextField>}
+                    {formValues.type === 'dropdown' && (
+                        <TextField
+                            margin="dense"
+                            name="options"
+                            label="Options (comma-separated)"
+                            value={formValues.options}
+                            onChange={handleFormChange}
+                            fullWidth
+                            variant="standard"
+                        />
+                    )}
+                    {/*{formValues.type === 'radio' && (*/}
+                    {/*    <TextField*/}
+                    {/*        margin="dense"*/}
+                    {/*        name="options"*/}
+                    {/*        label="Options (comma-separated)"*/}
+                    {/*        value={formValues.options}*/}
+                    {/*        onChange={handleFormChange}*/}
+                    {/*        fullWidth*/}
+                    {/*        variant="standard"*/}
+                    {/*    />*/}
+                    {/*)}*/}
+                    {formValues.type === 'radio' && (
+                        <>
+                            {/* Show existing options with remove buttons */}
+                            {formValues.options.split(',').map((option, index) => (
+                                <div key={index} className="flex items-center gap-2 mb-2">
+                                    <TextField
+                                        name={`option-${index}`}
+                                        value={option.trim()}
+                                        onChange={(e) => {
+                                            const newOptions = formValues.options.split(',');
+                                            newOptions[index] = e.target.value;
+                                            setFormValues(prev => ({
+                                                ...prev,
+                                                options: newOptions.join(',')
+                                            }));
+                                        }}
+                                        variant="standard"
+                                    />
+                                    <Button
+                                        onClick={() => {
+                                            const newOptions = formValues.options
+                                                .split(',')
+                                                .filter((_, i) => i !== index);
+                                            setFormValues(prev => ({
+                                                ...prev,
+                                                options: newOptions.join(',')
+                                            }));
+                                        }}
+                                        color="error"
+                                    >
+                                        Remove
+                                    </Button>
+                                </div>
+                            ))}
+
+                            {/* Add new option button */}
+                            <Button
+                                onClick={() => {
+                                    const currentOptions = formValues.options ? formValues.options.split(',') : [];
+                                    currentOptions.push(`Option ${currentOptions.length + 1}`);
+                                    setFormValues(prev => ({
+                                        ...prev,
+                                        options: currentOptions.join(',')
+                                    }));
+                                }}
+                                variant="outlined"
+                                className="mt-2"
+                            >
+                                Add Option
+                            </Button>
+                        </>
+                    )}
+
+                    {formValues.type === 'file' && (
+                        <TextField
+                            margin="dense"
+                            name="accept"
+                            label="Accepted File Types (e.g., .jpg,.png,.pdf)"
+                            value={formValues.accept}
+                            onChange={handleFormChange}
+                            fullWidth
+                            variant="standard"
+                        />
+                    )}
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={formValues.required}
+                                onChange={handleFormChange}
+                                name="required"
+                                color="primary"
+                            />
+                        }
+                        label="Required"
                     />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose}>Cancel</Button>
-                    <Button type="submit">Subscribe</Button>
+                    <Button onClick={handleFormSubmit}>Submit</Button>
                 </DialogActions>
             </Dialog>
         </>
     )
 
 }
-
-// function handleDragEnd(event) {
-//     if (event.over && event.over.id === 'droppable') {
-//         // setIsDropped(true);
-//         setDraggableMarkup(event.isDropped=true)
-//     }
-// }
-// }
 
 export default Formbuilder;
