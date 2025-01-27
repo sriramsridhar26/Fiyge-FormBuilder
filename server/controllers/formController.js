@@ -8,6 +8,7 @@ const saveForm = async (req, res) => {
         const newForm = await Forms.create({ form_name, form_data, user_email: userEmail });
         res.status(201).json(newForm);
     } catch (error) {
+        console.log(error.message);
         res.status(500).json({ error: error.message });
     }
 };

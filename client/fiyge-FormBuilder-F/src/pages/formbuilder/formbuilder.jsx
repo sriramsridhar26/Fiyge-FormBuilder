@@ -14,6 +14,8 @@ import {
     FormControlLabel,
     TextField
 } from "@mui/material";
+import {useAuth} from "../../hooks/AuthProvider/useAuth.jsx";
+import axios from "axios";
 
 
 function Formbuilder() {
@@ -315,15 +317,39 @@ function Formbuilder() {
 
         handleClose();
     };
-
-    const handlesaveform = () =>{
+    const {user} = useAuth();
+    const [formName, setFormName] = useState('');
+    const handleformnamechange = (e)=>{
+        setFormName(e.target.value);
+    }
+    const handlesaveform = async () =>{
         // TODO: do api call
+        if(!formName){
+            alert("Form name required");
+            return;
+        }
         console.log(draggableMarkup);
-        window.location.reload();
+        console.log(user);
+
+        await axios.post(import.meta.env.VITE_API_URL+"/api/forms/save", {form_name: formName, form_data: draggableMarkup},{
+            headers: {
+                'authorization': `Bearer ${user.token}`
+            }}).then((result)=>{
+                if(result.status === 201){
+                    alert("Form saved successfully");
+                    console.log(result);
+                    window.location.reload();
+                }
+        }).catch((err)=>{
+            alert(err.message);
+        });
+
     }
     return (
         <>
             {/*<button onClick={() => handleClickOpen()}>edit</button>*/}
+            <TextField name="Form Name" required={true} label="Form Name" variant="standard" value={formName}
+                       onChange={handleformnamechange}/>
             <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
                 <div style={{display: 'flex', gap: '10px'}}>
                     <div>

@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { Users } = require('../models/Models');
-
+const JWT_SECRET='sOKkbeZJIbQLszWtjCheHh981SIaCRQG';
 
 // Sign Up
 const signUp = async (req, res) => {
@@ -31,10 +31,11 @@ const signIn = async (req, res) => {
             return res.status(401).json({ error: 'Invalid email or password' });
         }
 
-        const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
 
         res.json({ message: 'Sign-in successful', token });
     } catch (error) {
+        console.log(error.message);
         res.status(500).json({ error: error.message });
     }
 };
