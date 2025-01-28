@@ -28,7 +28,7 @@ const updateForm = async (req, res) => {
         form.updated_at = new Date();
         await form.save();
 
-        res.json(form);
+        res.status(200).json(form);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

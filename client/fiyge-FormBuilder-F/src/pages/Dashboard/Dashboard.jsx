@@ -1,8 +1,6 @@
-
-
-import { useState, useEffect } from "react";
+import {useState, useEffect} from "react";
 import axios from "axios";
-import { List, ListItem, ListItemText, CircularProgress } from "@mui/material";
+import {List, ListItem, ListItemText, CircularProgress, ListItemButton} from "@mui/material";
 import {useAuth} from "../../hooks/AuthProvider/useAuth.jsx";
 import {useNavigate} from "react-router"; // Material UI components
 
@@ -37,7 +35,7 @@ function Dashboard() {
     if (loading) {
         return (
             <div className="flex justify-center items-center h-screen">
-                <CircularProgress />
+                <CircularProgress/>
             </div>
         );
     }
@@ -49,20 +47,23 @@ function Dashboard() {
             </div>
         );
     }
-    function onClick(id){
+
+    function onClick(id) {
         navigate('/editform/' + id);
     }
 
     return (
         <div className="container mx-auto p-4">
-            <h2 className="text-xl font-semibold mb-4">Forms Dashboard</h2>
+            <h2 className="text-xl font-semibold mb-4">Created Forms</h2>
             <List>
                 {forms.map((form) => (
-                    <ListItem key={form.id} className="border-b border-gray-200" onClick={()=>onClick(form.id)}>
-                        <ListItemText
-                            primary={form.form_name}
-                            secondary={`Form ID: ${form.id}`}
-                        />
+                    <ListItem key={form.id} className="border-b border-gray-200" onClick={() => onClick(form.id)}>
+                        <ListItemButton>
+                            <ListItemText
+                                primary={form.form_name}
+                                secondary={`Form ID: ${form.id}`}
+                            />
+                        </ListItemButton>
                     </ListItem>
                 ))}
             </List>

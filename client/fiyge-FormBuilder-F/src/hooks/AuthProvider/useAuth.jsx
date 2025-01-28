@@ -11,6 +11,7 @@ export default function AuthProvider({children}){
     const login = async (data)=>{
         setUser(data);
         navigate("/");
+
     }
     const logout = async ()=>{
         setUser(null);

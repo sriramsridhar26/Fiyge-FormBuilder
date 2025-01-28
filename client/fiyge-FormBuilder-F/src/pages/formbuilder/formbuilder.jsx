@@ -11,7 +11,7 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
-    FormControlLabel,
+    FormControlLabel, FormLabel, InputLabel, MenuItem, Radio, RadioGroup, Select,
     TextField
 } from "@mui/material";
 import {useAuth} from "../../hooks/AuthProvider/useAuth.jsx";
@@ -118,20 +118,23 @@ function Formbuilder() {
 
             case 'dropdown':
                 return (
-                    <select {...item.formprops}>
-                        {item.formprops.options.map((option, key) => (
-                            <option value={option} key={key}>
-                                {option}
-                            </option>
-                        ))}
-                    </select>
+                    <>
+                        <InputLabel>{item.formprops.label}</InputLabel>
+                        <Select {...item.formprops} fullWidth>
+                            {item.formprops.options.map((option, key) => (
+                                <MenuItem value={option} key={key}>
+                                    {option}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </>
                 );
 
             case 'checkbox':
                 return (
                     <div>
                         <label>
-                            <input {...item.formprops} />
+                            <Checkbox {...item.formprops} />
                             {item.formprops.label}
                         </label>
                     </div>
@@ -140,20 +143,18 @@ function Formbuilder() {
             case 'radio':
                 return (
                     <div>
-                        <label>{item.formprops.label}</label>
+                        <FormLabel>{item.formprops.label}</FormLabel>
+                        <RadioGroup>
                         {item.formprops.options.map((option, key) => (
-                            <div key={key}>
-                                <label>
-                                    <input
-                                        type="radio"
-                                        name={item.formprops.name}
-                                        value={option}
-                                        required={item.formprops.required}
-                                    />
-                                    {option}
-                                </label>
-                            </div>
+                            <FormControlLabel key={key}
+                                              name={item.formprops.name}
+                                              value={option}
+                                              label={option}
+                                              required={item.formprops.required} control={<Radio/>}>
+                            </FormControlLabel>
+
                         ))}
+                        </RadioGroup>
                     </div>
                 );
 
@@ -180,7 +181,7 @@ function Formbuilder() {
 
     // Modified save form function
     const handlesaveform = async () => {
-        if(!formName) {
+        if (!formName) {
             alert("Form name required");
             return;
         }
@@ -210,7 +211,7 @@ function Formbuilder() {
                 }
             );
 
-            if(response.status === 201) {
+            if (response.status === 201) {
                 alert("Form saved successfully");
                 window.location.reload();
             }
@@ -387,75 +388,91 @@ function Formbuilder() {
     };
     const {user} = useAuth();
     const [formName, setFormName] = useState('');
-    const handleformnamechange = (e)=>{
+    const handleformnamechange = (e) => {
         setFormName(e.target.value);
     }
-    // const handlesaveform = async () =>{
-    //     // TODO: do api call
-    //     if(!formName){
-    //         alert("Form name required");
-    //         return;
-    //     }
-    //     console.log(draggableMarkup);
-    //     console.log(user);
-    //
-    //     await axios.post(import.meta.env.VITE_API_URL+"/api/forms/save", {form_name: formName, form_data: draggableMarkup},{
-    //         headers: {
-    //             'authorization': `Bearer ${user.token}`
-    //         }}).then((result)=>{
-    //             if(result.status === 201){
-    //                 alert("Form saved successfully");
-    //                 console.log(result);
-    //                 window.location.reload();
-    //             }
-    //     }).catch((err)=>{
-    //         alert(err.message);
-    //     });
-    //
-    // }
     return (
         <>
             {/*<button onClick={() => handleClickOpen()}>edit</button>*/}
-            <TextField name="Form Name" required={true} label="Form Name" variant="standard" value={formName}
-                       onChange={handleformnamechange}/>
-            <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-                <div style={{display: 'flex', gap: '10px'}}>
-                    <div>
-                        {Object.values(draggableMarkup)
-                            .filter(item => !item.isDropped)
-                            .map(item => (
-                                <Draggable key={item.id} id={item.id}>
-                                    {renderContent(item)}
-                                </Draggable>
-                            ))}
+            <div className="min-h-screen bg-gray-50 py-8">
+                <div className="container mx-auto px-4">
+                    <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
+                        {/* Form Name Input Section */}
+                        <div className="mb-8">
+                            <TextField
+                                name="Form Name"
+                                required={true}
+                                label="Form Name"
+                                variant="standard"
+                                value={formName}
+                                onChange={handleformnamechange}
+                                fullWidth
+                                className="mb-6"
+                            />
+                        </div>
+
+                        {/* Form Builder Section */}
+                        <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+                            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                                {/* Available Components Section */}
+                                <div className="md:col-span-4 bg-gray-50 p-4 rounded-lg">
+                                    <h2 className="text-lg font-semibold mb-4 text-gray-700">Available Components</h2>
+                                    <div className="space-y-3">
+                                        {Object.values(draggableMarkup)
+                                            .filter(item => !item.isDropped)
+                                            .map(item => (
+                                                <Draggable key={item.id} id={item.id}>
+                                                    <div
+                                                        className="bg-white p-3 rounded shadow-sm border border-gray-200 hover:border-blue-500 transition-colors">
+                                                        {renderContent(item)}
+                                                    </div>
+                                                </Draggable>
+                                            ))}
+                                    </div>
+                                </div>
+
+                                {/* Form Preview Section */}
+                                <div className="md:col-span-8">
+                                    <h2 className="text-lg font-semibold mb-4 text-gray-700">Form Preview</h2>
+                                    <Droppable id="droppable">
+
+                                                {Object.values(draggableMarkup)
+                                                    .filter(item => item.isDropped)
+                                                    .map(item => (
+                                                        <Draggable key={item.id} id={item.id}>
+                                                            <div
+                                                                className="flex items-center gap-4 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+                                                                <div className="flex-grow">
+                                                                    {renderContent(item)}
+                                                                </div>
+                                                                <div className="flex-none">
+                                                                    <button
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            EditFormProps(item.id);
+                                                                        }}
+                                                                        className="px-3 py-1 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
+                                                                    >
+                                                                        Edit
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </Draggable>
+                                                    ))}
+
+                                    </Droppable>
+                                </div>
+                            </div>
+                        </DndContext>
+                        <div className="flex flex-col items-center ">
+                            <Button variant="contained" onClick={handlesaveform}>Save Form</Button>
+                        </div>
+
                     </div>
 
-                    <Droppable id="droppable">
-                        {Object.values(draggableMarkup)
-                            .filter(item => item.isDropped)
-                            .map(item => (
-                                <Draggable key={item.id} id={item.id}>
-                                    <div className="flex flex-row">
-                                        <div className="flex-auto">
-                                            {renderContent(item)}
-                                        </div>
-                                        <div className="flex-none">
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    EditFormProps(item.id);
-                                                }}
-                                            >
-                                                edit
-                                            </button>
-                                        </div>
-                                    </div>
-                                </Draggable>
-                            ))}
-                    </Droppable>
                 </div>
-            </DndContext>
-            <Button variant="contained" onClick={handlesaveform}>Save Form</Button>
+            </div>
+
             <Dialog open={open} onClose={handleClose}>
                 <DialogTitle>Edit Field Properties</DialogTitle>
                 <DialogContent>
